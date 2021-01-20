@@ -13,6 +13,7 @@
 		297E8AF025B824CE005D4134 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 297E8AEE25B824CE005D4134 /* Main.storyboard */; };
 		297E8AF225B824CF005D4134 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 297E8AF125B824CF005D4134 /* Assets.xcassets */; };
 		297E8AF525B824CF005D4134 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 297E8AF325B824CF005D4134 /* LaunchScreen.storyboard */; };
+		297E8AFE25B826EF005D4134 /* ViewForCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 297E8AFD25B826EF005D4134 /* ViewForCamera.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		297E8AF125B824CF005D4134 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		297E8AF425B824CF005D4134 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		297E8AF625B824CF005D4134 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		297E8AFD25B826EF005D4134 /* ViewForCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewForCamera.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,15 +58,40 @@
 		297E8AE725B824CE005D4134 /* Multi_Cam_App */ = {
 			isa = PBXGroup;
 			children = (
-				297E8AE825B824CE005D4134 /* AppDelegate.swift */,
+				297E8B0225B829AF005D4134 /* Model */,
+				297E8B0125B828ED005D4134 /* Views */,
+				297E8B0025B828CE005D4134 /* Controller */,
 				297E8AEA25B824CE005D4134 /* SceneDelegate.swift */,
-				297E8AEC25B824CE005D4134 /* ViewController.swift */,
-				297E8AEE25B824CE005D4134 /* Main.storyboard */,
+				297E8AE825B824CE005D4134 /* AppDelegate.swift */,
 				297E8AF125B824CF005D4134 /* Assets.xcassets */,
 				297E8AF325B824CF005D4134 /* LaunchScreen.storyboard */,
 				297E8AF625B824CF005D4134 /* Info.plist */,
 			);
 			path = Multi_Cam_App;
+			sourceTree = "<group>";
+		};
+		297E8B0025B828CE005D4134 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				297E8AFD25B826EF005D4134 /* ViewForCamera.swift */,
+				297E8AEC25B824CE005D4134 /* ViewController.swift */,
+			);
+			name = Controller;
+			sourceTree = "<group>";
+		};
+		297E8B0125B828ED005D4134 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				297E8AEE25B824CE005D4134 /* Main.storyboard */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		297E8B0225B829AF005D4134 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -138,6 +165,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				297E8AED25B824CE005D4134 /* ViewController.swift in Sources */,
+				297E8AFE25B826EF005D4134 /* ViewForCamera.swift in Sources */,
 				297E8AE925B824CE005D4134 /* AppDelegate.swift in Sources */,
 				297E8AEB25B824CE005D4134 /* SceneDelegate.swift in Sources */,
 			);
