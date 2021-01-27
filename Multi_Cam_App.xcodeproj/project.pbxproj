@@ -64,12 +64,12 @@
 			children = (
 				297E8B0225B829AF005D4134 /* Model */,
 				297E8B0125B828ED005D4134 /* Views */,
-				297E8B0025B828CE005D4134 /* Controller */,
 				297E8AEA25B824CE005D4134 /* SceneDelegate.swift */,
 				297E8AE825B824CE005D4134 /* AppDelegate.swift */,
 				297E8AF125B824CF005D4134 /* Assets.xcassets */,
 				297E8AF325B824CF005D4134 /* LaunchScreen.storyboard */,
 				297E8AF625B824CF005D4134 /* Info.plist */,
+				297E8B0025B828CE005D4134 /* Controller */,
 			);
 			path = Multi_Cam_App;
 			sourceTree = "<group>";

@@ -355,13 +355,13 @@ extension CamManager: AVCaptureVideoDataOutputSampleBufferDelegate,AVCaptureAudi
         
         if movieRecorder?.isRecording == true {
             let inputSourceInfo = "\(connection)"
-            if inputSourceInfo.contains("Back Camera") {
-                if let videoDataOutput = output as? AVCaptureVideoDataOutput {
-                    processVideoSampleBuffer(sampleBuffer, fromOutput: videoDataOutput)
-                } else if let audioDataOutput = output as? AVCaptureAudioDataOutput {
-                    processsAudioSampleBuffer(sampleBuffer, fromOutput: audioDataOutput)
-                }
-            }
+//            if inputSourceInfo.contains("Back Camera") {
+//                if let videoDataOutput = output as? AVCaptureVideoDataOutput {
+//                    processVideoSampleBuffer(sampleBuffer, fromOutput: videoDataOutput)
+//                } else if let audioDataOutput = output as? AVCaptureAudioDataOutput {
+//                    processsAudioSampleBuffer(sampleBuffer, fromOutput: audioDataOutput)
+//                }
+//            }
             if inputSourceInfo.contains("Front Camera") {
                 if let videoDataOutput = output as? AVCaptureVideoDataOutput {
                     processVideoSampleBuffer(sampleBuffer, fromOutput: videoDataOutput)

@@ -148,7 +148,7 @@ class ViewController: UIViewController {
             camManager.movieRecorder?.startRecording()
             sender.setTitle("End Recording", for: .normal)
         }else {
-            camManager.movieRecorder?.isRecording = true
+            camManager.movieRecorder?.isRecording = false
             camManager.movieRecorder?.stopRecording { movieURL in
                 self.camManager.saveMovieToPhotoLibrary(movieURL)
             }
@@ -215,14 +215,14 @@ extension ViewController {
         camManager.configureDualVideo(viewController: self) { [weak self] in
             guard let self = self else { return }
             
-//            guard self.camManager.setUpCamera(type: .builtInWideAngleCamera, position: .front, outputViewlayer: self.frontLayer!) else{
-//                DispatchQueue.main.async {
-//                    let alertController = UIAlertController(title: "Error", message: "issue while setuping front camera", preferredStyle: .alert)
-//                    alertController.addAction(UIAlertAction(title: "OK",style: .cancel, handler: nil))
-//                    self.present(alertController, animated: true, completion: nil)
-//                }
-//                return
-//            }
+            guard self.camManager.setUpCamera(type: .builtInWideAngleCamera, position: .front, outputViewlayer: self.frontLayer!) else{
+                DispatchQueue.main.async {
+                    let alertController = UIAlertController(title: "Error", message: "issue while setuping front camera", preferredStyle: .alert)
+                    alertController.addAction(UIAlertAction(title: "OK",style: .cancel, handler: nil))
+                    self.present(alertController, animated: true, completion: nil)
+                }
+                return
+            }
             
             guard self.camManager.setUpCamera(type: .builtInWideAngleCamera, position: .back, outputViewlayer: self.backLayer1!) else{
                 DispatchQueue.main.async {
@@ -233,14 +233,14 @@ extension ViewController {
                 return
             }
             
-//            guard self.camManager.setUpCamera(type: .builtInTelephotoCamera, position: .back, outputViewlayer: self.backLayer2!) else{
-//                DispatchQueue.main.async {
-//                    let alertController = UIAlertController(title: "Error", message: "3rd camera", preferredStyle: .alert)
-//                    alertController.addAction(UIAlertAction(title: "OK",style: .cancel, handler: nil))
-//                    self.present(alertController, animated: true, completion: nil)
-//                }
-//                return
-//            }
+            guard self.camManager.setUpCamera(type: .builtInTelephotoCamera, position: .back, outputViewlayer: self.backLayer2!) else{
+                DispatchQueue.main.async {
+                    let alertController = UIAlertController(title: "Error", message: "3rd camera", preferredStyle: .alert)
+                    alertController.addAction(UIAlertAction(title: "OK",style: .cancel, handler: nil))
+                    self.present(alertController, animated: true, completion: nil)
+                }
+                return
+            }
 //            guard self.camManager.setUpCamera(type: .builtInUltraWideCamera, position: .back, outputViewlayer: self.backLayer3!) else{
 //                DispatchQueue.main.async {
 //                    let alertController = UIAlertController(title: "Error", message: "4th camera", preferredStyle: .alert)
