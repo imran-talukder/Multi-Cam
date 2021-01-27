@@ -36,17 +36,17 @@ class ViewController: UIViewController {
     }()
     var backLayer2: AVCaptureVideoPreviewLayer?
     
-    let backViewLayer3: ViewForCamera = {
-        let view = ViewForCamera()
-        view.backgroundColor = .clear
+    let backViewLayer3: UIImageView = {
+        let view = UIImageView()
         return view
     }()
-    var backLayer3: AVCaptureVideoPreviewLayer?
+    var backLayer3: UIImageView?
     
     //MARK: -  viewDidload
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        camManager.delegate = self
         addCameraViews()
         addActionButtons()
         setup()
@@ -70,7 +70,7 @@ class ViewController: UIViewController {
             frontViewLayer.translatesAutoresizingMaskIntoConstraints = false
             frontViewLayer.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 10).isActive = true
             frontViewLayer.topAnchor.constraint(equalTo: view.topAnchor, constant: 50).isActive = true
-            frontViewLayer.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.35).isActive = true
+            frontViewLayer.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.4).isActive = true
             frontViewLayer.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.45).isActive = true
         }
         
@@ -80,7 +80,7 @@ class ViewController: UIViewController {
             backViewLayer1.translatesAutoresizingMaskIntoConstraints = false
             backViewLayer1.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -10).isActive = true
             backViewLayer1.topAnchor.constraint(equalTo: view.topAnchor, constant: 50).isActive = true
-            backViewLayer1.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.35).isActive = true
+            backViewLayer1.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.4).isActive = true
             backViewLayer1.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.45).isActive = true
         }
         
@@ -90,7 +90,7 @@ class ViewController: UIViewController {
             backViewLayer2.translatesAutoresizingMaskIntoConstraints = false
             backViewLayer2.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 10).isActive = true
             backViewLayer2.topAnchor.constraint(equalTo: frontViewLayer.bottomAnchor, constant: 10).isActive = true
-            backViewLayer2.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.35).isActive = true
+            backViewLayer2.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.4).isActive = true
             backViewLayer2.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.45).isActive = true
         }
         
@@ -100,7 +100,7 @@ class ViewController: UIViewController {
             backViewLayer3.translatesAutoresizingMaskIntoConstraints = false
             backViewLayer3.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -10).isActive = true
             backViewLayer3.topAnchor.constraint(equalTo: backViewLayer1.bottomAnchor, constant: 10).isActive = true
-            backViewLayer3.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.35).isActive = true
+            backViewLayer3.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.4).isActive = true
             backViewLayer3.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.45).isActive = true
         }
         
@@ -181,7 +181,7 @@ extension ViewController {
         frontLayer = frontViewLayer.videoPreviewLayer
         backLayer1 = backViewLayer1.videoPreviewLayer
         backLayer2 = backViewLayer2.videoPreviewLayer
-        backLayer3 = backViewLayer3.videoPreviewLayer
+        //backLayer3 = backViewLayer3.videoPreviewLayer
         dualVideoPermisson()
     }
     
@@ -244,7 +244,7 @@ extension ViewController {
                 return
             }
             
-            guard self.camManager.setUpCamera(type: .builtInTelephotoCamera, position: .back, outputViewlayer: self.backLayer2!) else{
+            guard self.camManager.setUpCamera(type: .builtInUltraWideCamera, position: .back, outputViewlayer: self.backLayer2!) else{
                 DispatchQueue.main.async {
                     let alertController = UIAlertController(title: "Error", message: "3rd camera", preferredStyle: .alert)
                     alertController.addAction(UIAlertAction(title: "OK",style: .cancel, handler: nil))
@@ -264,6 +264,14 @@ extension ViewController {
                 print("Audio Failed-----------------")
                 return
             }
+        }
+    }
+}
+
+extension ViewController: CamManagerToMainVC {
+    func getImage(image: UIImage) {
+        DispatchQueue.main.async {
+            self.backViewLayer3.image = image
         }
     }
 }

@@ -23,7 +23,7 @@ class  CamManager: NSObject {
 
     let dualVideoSessionQueue = DispatchQueue(label: "dual video session queue")
     let dualVideoSessionOutputQueue = DispatchQueue(label: "dual video session data output queue")
-    
+    var delegate: CamManagerToMainVC?
     //MARK: - Buffer converting
     var videoTrackSourceFormatDescription: CMFormatDescription?
     var currentPiPSampleBuffer: CMSampleBuffer?
@@ -354,14 +354,25 @@ extension CamManager: AVCaptureVideoDataOutputSampleBufferDelegate,AVCaptureAudi
 
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection){
         
+        let chk = "\(connection)"
+        if chk.contains("Back Camera") {
+            let imageBuffer: CVPixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
+            let ciimage : CIImage = CIImage(cvPixelBuffer: imageBuffer)
+            let image : UIImage = self.convert(cmage: ciimage)
+            delegate?.getImage(image: image)
+
+        }
+        
         if movieRecorder?.isRecording == true {
             let inputSourceInfo = "\(connection)"
+            
             if inputSourceInfo.contains("Back Camera") {
-                if let videoDataOutput = output as? AVCaptureVideoDataOutput {
+                
+                if output is AVCaptureVideoDataOutput {
                     if let recorder = movieRecorder {
                         recorder.recordVideo(sampleBuffer: sampleBuffer)
                     }
-                } else if let audioDataOutput = output as? AVCaptureAudioDataOutput {
+                } else if output is AVCaptureAudioDataOutput {
                     if let recorder = movieRecorder,
                         recorder.isRecording {
                         recorder.recordAudio(sampleBuffer: sampleBuffer)
@@ -369,11 +380,11 @@ extension CamManager: AVCaptureVideoDataOutputSampleBufferDelegate,AVCaptureAudi
                 }
             }
             if inputSourceInfo.contains("Front Camera") {
-                if let videoDataOutput = output as? AVCaptureVideoDataOutput {
+                if output is AVCaptureVideoDataOutput {
                     if let recorder = movieRecorder2 {
                         recorder.recordVideo(sampleBuffer: sampleBuffer)
                     }
-                } else if let audioDataOutput = output as? AVCaptureAudioDataOutput {
+                } else if output is AVCaptureAudioDataOutput {
                     if let recorder = movieRecorder2,
                         recorder.isRecording {
                         recorder.recordAudio(sampleBuffer: sampleBuffer)
@@ -383,6 +394,16 @@ extension CamManager: AVCaptureVideoDataOutputSampleBufferDelegate,AVCaptureAudi
             
         }
     }
-    
-    
+    func convert(cmage:CIImage) -> UIImage
+    {
+        let context:CIContext = CIContext.init(options: nil)
+        let cgImage:CGImage = context.createCGImage(cmage, from: cmage.extent)!
+        let image:UIImage = UIImage.init(cgImage: cgImage, scale: 5.0, orientation: .init(UIImage.Orientation(rawValue: 0)!)!)
+        return image
+    }
+}
+
+
+protocol CamManagerToMainVC {
+    func getImage(image: UIImage)
 }
