@@ -12,6 +12,7 @@ import Photos
 
 class  CamManager: NSObject {
     var movieRecorder: MovieRecorder?
+    var movieRecorder2: MovieRecorder?
     var backgroundRecordingID: UIBackgroundTaskIdentifier?
     var videoDataOutput = AVCaptureVideoDataOutput()
     var dualVideoSession = AVCaptureMultiCamSession()
@@ -355,33 +356,33 @@ extension CamManager: AVCaptureVideoDataOutputSampleBufferDelegate,AVCaptureAudi
         
         if movieRecorder?.isRecording == true {
             let inputSourceInfo = "\(connection)"
-//            if inputSourceInfo.contains("Back Camera") {
-//                if let videoDataOutput = output as? AVCaptureVideoDataOutput {
-//                    processVideoSampleBuffer(sampleBuffer, fromOutput: videoDataOutput)
-//                } else if let audioDataOutput = output as? AVCaptureAudioDataOutput {
-//                    processsAudioSampleBuffer(sampleBuffer, fromOutput: audioDataOutput)
-//                }
-//            }
+            if inputSourceInfo.contains("Back Camera") {
+                if let videoDataOutput = output as? AVCaptureVideoDataOutput {
+                    if let recorder = movieRecorder {
+                        recorder.recordVideo(sampleBuffer: sampleBuffer)
+                    }
+                } else if let audioDataOutput = output as? AVCaptureAudioDataOutput {
+                    if let recorder = movieRecorder,
+                        recorder.isRecording {
+                        recorder.recordAudio(sampleBuffer: sampleBuffer)
+                    }
+                }
+            }
             if inputSourceInfo.contains("Front Camera") {
                 if let videoDataOutput = output as? AVCaptureVideoDataOutput {
-                    processVideoSampleBuffer(sampleBuffer, fromOutput: videoDataOutput)
+                    if let recorder = movieRecorder2 {
+                        recorder.recordVideo(sampleBuffer: sampleBuffer)
+                    }
                 } else if let audioDataOutput = output as? AVCaptureAudioDataOutput {
-                    processsAudioSampleBuffer(sampleBuffer, fromOutput: audioDataOutput)
+                    if let recorder = movieRecorder2,
+                        recorder.isRecording {
+                        recorder.recordAudio(sampleBuffer: sampleBuffer)
+                    }
                 }
             }
             
         }
     }
     
-    func processVideoSampleBuffer(_ sampleBuffer: CMSampleBuffer, fromOutput videoDataOutput: AVCaptureVideoDataOutput) {
-        if let recorder = movieRecorder {
-            recorder.recordVideo(sampleBuffer: sampleBuffer)
-        }
-    }
-    private func processsAudioSampleBuffer(_ sampleBuffer: CMSampleBuffer, fromOutput audioDataOutput: AVCaptureAudioDataOutput) {
-        if let recorder = movieRecorder,
-            recorder.isRecording {
-            recorder.recordAudio(sampleBuffer: sampleBuffer)
-        }
-    }
+    
 }

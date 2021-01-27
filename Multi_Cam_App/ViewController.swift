@@ -124,7 +124,7 @@ class ViewController: UIViewController {
     @objc func recordButtonTrigered(_ sender: UIButton) {
         if sender.titleLabel?.text == "Start" {
             camManager.movieRecorder?.isRecording = true
-            
+            camManager.movieRecorder2?.isRecording = true
             guard let audioSettings = camManager.createAudioSettings() else {
                 print("Could not create audio settings")
                 return
@@ -146,10 +146,21 @@ class ViewController: UIViewController {
             
             
             camManager.movieRecorder?.startRecording()
+            
+            camManager.movieRecorder2 = MovieRecorder(audioSettings: audioSettings,
+                                               videoSettings: videoSettings,
+                                               videoTransform: videoTransform)
+            
+            
+            camManager.movieRecorder2?.startRecording()
             sender.setTitle("End Recording", for: .normal)
         }else {
             camManager.movieRecorder?.isRecording = false
             camManager.movieRecorder?.stopRecording { movieURL in
+                self.camManager.saveMovieToPhotoLibrary(movieURL)
+            }
+            camManager.movieRecorder2?.isRecording = false
+            camManager.movieRecorder2?.stopRecording { movieURL in
                 self.camManager.saveMovieToPhotoLibrary(movieURL)
             }
             let alertController = UIAlertController(title: "Saved!", message: "Video saved to your gallery.", preferredStyle: .alert)
@@ -256,9 +267,6 @@ extension ViewController {
         }
     }
 }
-
-
-
 
 
 extension Bundle {
