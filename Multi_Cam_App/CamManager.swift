@@ -8,22 +8,68 @@
 import Foundation
 import AVFoundation
 import UIKit
+import Photos
 
 class  CamManager: NSObject {
-    
+    var movieRecorder: MovieRecorder?
+    var backgroundRecordingID: UIBackgroundTaskIdentifier?
+    var videoDataOutput = AVCaptureVideoDataOutput()
     var dualVideoSession = AVCaptureMultiCamSession()
     
     var audioDeviceInput: AVCaptureDeviceInput?
     var backAudioDataOutput = AVCaptureAudioDataOutput()
     var frontAudioDataOutput = AVCaptureAudioDataOutput()
 
-     let dualVideoSessionQueue = DispatchQueue(label: "dual video session queue")
-      
-     let dualVideoSessionOutputQueue = DispatchQueue(label: "dual video session data output queue")
+    let dualVideoSessionQueue = DispatchQueue(label: "dual video session queue")
+    let dualVideoSessionOutputQueue = DispatchQueue(label: "dual video session data output queue")
+    
+    //MARK: - Buffer converting
+    var videoTrackSourceFormatDescription: CMFormatDescription?
+    var currentPiPSampleBuffer: CMSampleBuffer?
     
     
     weak var viewController: UIViewController!
-    
+    func saveMovieToPhotoLibrary(_ movieURL: URL) {
+        PHPhotoLibrary.requestAuthorization { status in
+            if status == .authorized {
+                // Save the movie file to the photo library and clean up.
+                PHPhotoLibrary.shared().performChanges({
+                    let options = PHAssetResourceCreationOptions()
+                    options.shouldMoveFile = true
+                    let creationRequest = PHAssetCreationRequest.forAsset()
+                    creationRequest.addResource(with: .video, fileURL: movieURL, options: options)
+                }, completionHandler: { success, error in
+                    if !success {
+                        print("\(Bundle.main.applicationName) couldn't save the movie to your photo library: \(String(describing: error))")
+                    } else {
+                        // Clean up
+                        if FileManager.default.fileExists(atPath: movieURL.path) {
+                            do {
+                                try FileManager.default.removeItem(atPath: movieURL.path)
+                            } catch {
+                                print("Could not remove file at url: \(movieURL)")
+                            }
+                        }
+                        
+                        if let currentBackgroundRecordingID = self.backgroundRecordingID {
+                            self.backgroundRecordingID = UIBackgroundTaskIdentifier.invalid
+                            
+                            if currentBackgroundRecordingID != UIBackgroundTaskIdentifier.invalid {
+                                UIApplication.shared.endBackgroundTask(currentBackgroundRecordingID)
+                            }
+                        }
+                    }
+                })
+            } else {
+                DispatchQueue.main.async {
+                    let alertMessage = "Alert message when the user has not authorized photo library access"
+                    let message = NSLocalizedString("\(Bundle.main.applicationName) does not have permission to access the photo library", comment: alertMessage)
+                    let alertController = UIAlertController(title: Bundle.main.applicationName, message: message, preferredStyle: .alert)
+                    self.viewController.present(alertController, animated: true, completion: nil)
+                }
+            }
+        }
+    }
     
     func configureDualVideo(viewController: UIViewController,block: @escaping () -> Void){
         self.viewController = viewController
@@ -34,20 +80,75 @@ class  CamManager: NSObject {
       }
     
 
-        func setUpSession(block: () -> Void){
-            if !AVCaptureMultiCamSession.isMultiCamSupported{
-                DispatchQueue.main.async {
-                   let alertController = UIAlertController(title: "Error", message: "Device is not supporting multicam feature", preferredStyle: .alert)
-                   alertController.addAction(UIAlertAction(title: "OK",style: .cancel, handler: nil))
-                    self.viewController.present(alertController, animated: true, completion: nil)
-                }
-                return
+    func setUpSession(block: () -> Void){
+        if !AVCaptureMultiCamSession.isMultiCamSupported{
+            DispatchQueue.main.async {
+               let alertController = UIAlertController(title: "Error", message: "Device is not supporting multicam feature", preferredStyle: .alert)
+               alertController.addAction(UIAlertAction(title: "OK",style: .cancel, handler: nil))
+                self.viewController.present(alertController, animated: true, completion: nil)
             }
-                
-            block()
-            
-            start()
+            return
         }
+            
+        block()
+        
+        start()
+    }
+    
+    func createAudioSettings() -> [String: NSObject]? {
+        guard let backMicrophoneAudioSettings = backAudioDataOutput.recommendedAudioSettingsForAssetWriter(writingTo: .mov) as? [String: NSObject] else {
+            print("Could not get back microphone audio settings")
+            return nil
+        }
+        guard let frontMicrophoneAudioSettings = frontAudioDataOutput.recommendedAudioSettingsForAssetWriter(writingTo: .mov) as? [String: NSObject] else {
+            print("Could not get front microphone audio settings")
+            return nil
+        }
+        
+        if backMicrophoneAudioSettings == frontMicrophoneAudioSettings {
+            // The front and back microphone audio settings are equal, so return either one
+            return backMicrophoneAudioSettings
+        } else {
+            print("Front and back microphone audio settings are not equal. Check your AVCaptureAudioDataOutput configuration.")
+            return nil
+        }
+    }
+    
+    func createVideoSettings() -> [String: NSObject]? {
+        guard let backCameraVideoSettings = videoDataOutput.recommendedVideoSettingsForAssetWriter(writingTo: .mov) as? [String: NSObject] else {
+            print("Could not get back camera video settings")
+            return nil
+        }
+        guard let frontCameraVideoSettings = videoDataOutput.recommendedVideoSettingsForAssetWriter(writingTo: .mov) as? [String: NSObject] else {
+            print("Could not get front camera video settings")
+            return nil
+        }
+        
+        if backCameraVideoSettings == frontCameraVideoSettings {
+            // The front and back camera video settings are equal, so return either one
+            return backCameraVideoSettings
+        } else {
+            print("Front and back camera video settings are not equal. Check your AVCaptureVideoDataOutput configuration.")
+            return nil
+        }
+    }
+    func createVideoTransform() -> CGAffineTransform? {
+        guard let backCameraVideoConnection = videoDataOutput.connection(with: .video) else {
+                print("Could not find the back and front camera video connections")
+                return nil
+        }
+        
+        let deviceOrientation = UIDevice.current.orientation
+        let videoOrientation = AVCaptureVideoOrientation(deviceOrientation: deviceOrientation) ?? .portrait
+        
+        // Compute transforms from the back camera's video orientation to the device's orientation
+        let backCameraTransform = backCameraVideoConnection.videoOrientationTransform(relativeTo: videoOrientation)
+
+        return backCameraTransform
+
+    }
+    
+    
     
     func setUpCamera(type: AVCaptureDevice.DeviceType,position: AVCaptureDevice.Position, outputViewlayer: AVCaptureVideoPreviewLayer) -> Bool{
         
@@ -66,7 +167,7 @@ class  CamManager: NSObject {
                 return false
             }
             
-            let videoDataOutput = AVCaptureVideoDataOutput()
+            videoDataOutput = AVCaptureVideoDataOutput()
 
             let deviceInput: AVCaptureDeviceInput?
             // append back camera input to dual video session
@@ -251,6 +352,36 @@ extension CamManager: AVCaptureVideoDataOutputSampleBufferDelegate,AVCaptureAudi
      //MARK:- AVCaptureOutput Delegate
 
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection){
-
+        
+        if movieRecorder?.isRecording == true {
+            let inputSourceInfo = "\(connection)"
+            if inputSourceInfo.contains("Back Camera") {
+                if let videoDataOutput = output as? AVCaptureVideoDataOutput {
+                    processVideoSampleBuffer(sampleBuffer, fromOutput: videoDataOutput)
+                } else if let audioDataOutput = output as? AVCaptureAudioDataOutput {
+                    processsAudioSampleBuffer(sampleBuffer, fromOutput: audioDataOutput)
+                }
+            }
+            if inputSourceInfo.contains("Front Camera") {
+                if let videoDataOutput = output as? AVCaptureVideoDataOutput {
+                    processVideoSampleBuffer(sampleBuffer, fromOutput: videoDataOutput)
+                } else if let audioDataOutput = output as? AVCaptureAudioDataOutput {
+                    processsAudioSampleBuffer(sampleBuffer, fromOutput: audioDataOutput)
+                }
+            }
+            
+        }
+    }
+    
+    func processVideoSampleBuffer(_ sampleBuffer: CMSampleBuffer, fromOutput videoDataOutput: AVCaptureVideoDataOutput) {
+        if let recorder = movieRecorder {
+            recorder.recordVideo(sampleBuffer: sampleBuffer)
+        }
+    }
+    private func processsAudioSampleBuffer(_ sampleBuffer: CMSampleBuffer, fromOutput audioDataOutput: AVCaptureAudioDataOutput) {
+        if let recorder = movieRecorder,
+            recorder.isRecording {
+            recorder.recordAudio(sampleBuffer: sampleBuffer)
+        }
     }
 }

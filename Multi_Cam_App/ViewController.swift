@@ -14,7 +14,6 @@ class ViewController: UIViewController {
     //MARK: -  Properties
     
     let camManager = CamManager()
-    let recordManager = RecordManager()
     
     let frontViewLayer: ViewForCamera = {
         let view = ViewForCamera()
@@ -124,10 +123,35 @@ class ViewController: UIViewController {
     }
     @objc func recordButtonTrigered(_ sender: UIButton) {
         if sender.titleLabel?.text == "Start" {
-            recordManager.handleSingleTap()
+            camManager.movieRecorder?.isRecording = true
+            
+            guard let audioSettings = camManager.createAudioSettings() else {
+                print("Could not create audio settings")
+                return
+            }
+            
+            guard let videoSettings = camManager.createVideoSettings() else {
+                print("Could not create video settings")
+                return
+            }
+            
+            guard let videoTransform = camManager.createVideoTransform() else {
+                print("Could not create video transform")
+                return
+            }
+
+            camManager.movieRecorder = MovieRecorder(audioSettings: audioSettings,
+                                               videoSettings: videoSettings,
+                                               videoTransform: videoTransform)
+            
+            
+            camManager.movieRecorder?.startRecording()
             sender.setTitle("End Recording", for: .normal)
         }else {
-            recordManager.handleDoubleTap()
+            camManager.movieRecorder?.isRecording = true
+            camManager.movieRecorder?.stopRecording { movieURL in
+                self.camManager.saveMovieToPhotoLibrary(movieURL)
+            }
             let alertController = UIAlertController(title: "Saved!", message: "Video saved to your gallery.", preferredStyle: .alert)
             alertController.addAction(UIAlertAction(title: "Done",style: .cancel, handler: nil))
             self.present(alertController, animated: true, completion: nil)
@@ -148,7 +172,6 @@ extension ViewController {
         backLayer2 = backViewLayer2.videoPreviewLayer
         backLayer3 = backViewLayer3.videoPreviewLayer
         dualVideoPermisson()
-        recordManager.configure(viewController: self)
     }
     
     func dualVideoPermisson(){
@@ -174,60 +197,138 @@ extension ViewController {
                 let changePrivacySetting = "Device doesn't have permission to use the camera, please change privacy settings"
                 let message = NSLocalizedString(changePrivacySetting, comment: "Alert message when the user has denied access to the camera")
                 let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-                
                 alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-                
                 alertController.addAction(UIAlertAction(title: "Settings", style: .`default`,handler: { _ in
                     if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
                         UIApplication.shared.open(settingsURL,  options: [:], completionHandler: nil)
                     }
                 }))
-                
                 self.present(alertController, animated: true, completion: nil)
             }
         }
     }
     
     func configureDualVideo() {
+        if UIDevice.current.isMultitaskingSupported {
+            camManager.backgroundRecordingID = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
+        }
         camManager.configureDualVideo(viewController: self) { [weak self] in
             guard let self = self else { return }
             
-            guard self.camManager.setUpCamera(type: .builtInWideAngleCamera, position: .front, outputViewlayer: self.frontLayer!) else{
-                DispatchQueue.main.async {
-                    let alertController = UIAlertController(title: "Error", message: "issue while setuping front camera", preferredStyle: .alert)
-                    alertController.addAction(UIAlertAction(title: "OK",style: .cancel, handler: nil))
-                    self.present(alertController, animated: true, completion: nil)
-                }
-                return
-            }
-            
-//            guard self.camManager.setUpCamera(type: .builtInWideAngleCamera, position: .back, outputViewlayer: self.backLayer1!) else{
+//            guard self.camManager.setUpCamera(type: .builtInWideAngleCamera, position: .front, outputViewlayer: self.frontLayer!) else{
 //                DispatchQueue.main.async {
-//                    let alertController = UIAlertController(title: "Error", message: "issue while setuping back camera", preferredStyle: .alert)
+//                    let alertController = UIAlertController(title: "Error", message: "issue while setuping front camera", preferredStyle: .alert)
 //                    alertController.addAction(UIAlertAction(title: "OK",style: .cancel, handler: nil))
 //                    self.present(alertController, animated: true, completion: nil)
 //                }
 //                return
 //            }
             
-            guard self.camManager.setUpCamera(type: .builtInTelephotoCamera, position: .back, outputViewlayer: self.backLayer2!) else{
+            guard self.camManager.setUpCamera(type: .builtInWideAngleCamera, position: .back, outputViewlayer: self.backLayer1!) else{
                 DispatchQueue.main.async {
-                    let alertController = UIAlertController(title: "Error", message: "3rd camera", preferredStyle: .alert)
+                    let alertController = UIAlertController(title: "Error", message: "issue while setuping back camera", preferredStyle: .alert)
                     alertController.addAction(UIAlertAction(title: "OK",style: .cancel, handler: nil))
                     self.present(alertController, animated: true, completion: nil)
                 }
                 return
             }
             
-            guard self.camManager.setUpCamera(type: .builtInTrueDepthCamera, position: .back, outputViewlayer: self.backLayer3!) else{
-                DispatchQueue.main.async {
-                    let alertController = UIAlertController(title: "Error", message: "4th camera", preferredStyle: .alert)
-                    alertController.addAction(UIAlertAction(title: "OK",style: .cancel, handler: nil))
-                    self.present(alertController, animated: true, completion: nil)
-                }
+//            guard self.camManager.setUpCamera(type: .builtInTelephotoCamera, position: .back, outputViewlayer: self.backLayer2!) else{
+//                DispatchQueue.main.async {
+//                    let alertController = UIAlertController(title: "Error", message: "3rd camera", preferredStyle: .alert)
+//                    alertController.addAction(UIAlertAction(title: "OK",style: .cancel, handler: nil))
+//                    self.present(alertController, animated: true, completion: nil)
+//                }
+//                return
+//            }
+//            guard self.camManager.setUpCamera(type: .builtInUltraWideCamera, position: .back, outputViewlayer: self.backLayer3!) else{
+//                DispatchQueue.main.async {
+//                    let alertController = UIAlertController(title: "Error", message: "4th camera", preferredStyle: .alert)
+//                    alertController.addAction(UIAlertAction(title: "OK",style: .cancel, handler: nil))
+//                    self.present(alertController, animated: true, completion: nil)
+//                }
+//                return
+//            }
+            guard self.camManager.setUpAudio() else {
+                print("Audio Failed-----------------")
                 return
             }
         }
     }
 }
 
+
+
+
+
+extension Bundle {
+    
+    var applicationName: String {
+        if let name = object(forInfoDictionaryKey: "CFBundleDisplayName") as? String {
+            return name
+        } else if let name = object(forInfoDictionaryKey: "CFBundleName") as? String {
+            return name
+        }
+        
+        return "-"
+    }
+}
+
+
+extension AVCaptureVideoOrientation {
+    
+    init?(deviceOrientation: UIDeviceOrientation) {
+        switch deviceOrientation {
+        case .portrait: self = .portrait
+        case .portraitUpsideDown: self = .portraitUpsideDown
+        case .landscapeLeft: self = .landscapeRight
+        case .landscapeRight: self = .landscapeLeft
+        default: return nil
+        }
+    }
+    
+    init?(interfaceOrientation: UIInterfaceOrientation) {
+        switch interfaceOrientation {
+        case .portrait: self = .portrait
+        case .portraitUpsideDown: self = .portraitUpsideDown
+        case .landscapeLeft: self = .landscapeLeft
+        case .landscapeRight: self = .landscapeRight
+        default: return nil
+        }
+    }
+    
+    func angleOffsetFromPortraitOrientation(at position: AVCaptureDevice.Position) -> Double {
+        switch self {
+        case .portrait:
+            return position == .front ? .pi : 0
+        case .portraitUpsideDown:
+            return position == .front ? 0 : .pi
+        case .landscapeRight:
+            return -.pi / 2.0
+        case .landscapeLeft:
+            return .pi / 2.0
+        default:
+            return 0
+        }
+    }
+}
+
+extension AVCaptureConnection {
+    func videoOrientationTransform(relativeTo destinationVideoOrientation: AVCaptureVideoOrientation) -> CGAffineTransform {
+        let videoDevice: AVCaptureDevice
+        if let deviceInput = inputPorts.first?.input as? AVCaptureDeviceInput, deviceInput.device.hasMediaType(.video) {
+            videoDevice = deviceInput.device
+        } else {
+            // Fatal error? Programmer error?
+            print("Video data output's video connection does not have a video device")
+            return .identity
+        }
+        
+        let fromAngleOffset = videoOrientation.angleOffsetFromPortraitOrientation(at: videoDevice.position)
+        let toAngleOffset = destinationVideoOrientation.angleOffsetFromPortraitOrientation(at: videoDevice.position)
+        let angleOffset = CGFloat(toAngleOffset - fromAngleOffset)
+        let transform = CGAffineTransform(rotationAngle: angleOffset)
+        
+        return transform
+    }
+}

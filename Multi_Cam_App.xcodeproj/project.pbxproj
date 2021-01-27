@@ -15,8 +15,7 @@
 		297E8AF525B824CF005D4134 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 297E8AF325B824CF005D4134 /* LaunchScreen.storyboard */; };
 		297E8AFE25B826EF005D4134 /* ViewForCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 297E8AFD25B826EF005D4134 /* ViewForCamera.swift */; };
 		297E8B0525B844A5005D4134 /* CamManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 297E8B0425B844A5005D4134 /* CamManager.swift */; };
-		297E8B0825B844D8005D4134 /* RecordManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 297E8B0725B844D8005D4134 /* RecordManager.swift */; };
-		297E8B0B25B84548005D4134 /* AssetWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 297E8B0A25B84548005D4134 /* AssetWriter.swift */; };
+		29DA2F5825C1233900908D47 /* MovieRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29DA2F5725C1233900908D47 /* MovieRecorder.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,8 +29,7 @@
 		297E8AF625B824CF005D4134 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		297E8AFD25B826EF005D4134 /* ViewForCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewForCamera.swift; sourceTree = "<group>"; };
 		297E8B0425B844A5005D4134 /* CamManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CamManager.swift; sourceTree = "<group>"; };
-		297E8B0725B844D8005D4134 /* RecordManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordManager.swift; sourceTree = "<group>"; };
-		297E8B0A25B84548005D4134 /* AssetWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetWriter.swift; sourceTree = "<group>"; };
+		29DA2F5725C1233900908D47 /* MovieRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieRecorder.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,8 +80,7 @@
 				297E8AFD25B826EF005D4134 /* ViewForCamera.swift */,
 				297E8AEC25B824CE005D4134 /* ViewController.swift */,
 				297E8B0425B844A5005D4134 /* CamManager.swift */,
-				297E8B0725B844D8005D4134 /* RecordManager.swift */,
-				297E8B0A25B84548005D4134 /* AssetWriter.swift */,
+				29DA2F5725C1233900908D47 /* MovieRecorder.swift */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -173,10 +170,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				297E8B0825B844D8005D4134 /* RecordManager.swift in Sources */,
-				297E8B0B25B84548005D4134 /* AssetWriter.swift in Sources */,
 				297E8AED25B824CE005D4134 /* ViewController.swift in Sources */,
 				297E8B0525B844A5005D4134 /* CamManager.swift in Sources */,
+				29DA2F5825C1233900908D47 /* MovieRecorder.swift in Sources */,
 				297E8AFE25B826EF005D4134 /* ViewForCamera.swift in Sources */,
 				297E8AE925B824CE005D4134 /* AppDelegate.swift in Sources */,
 				297E8AEB25B824CE005D4134 /* SceneDelegate.swift in Sources */,
@@ -327,14 +323,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = A2NGYFKBN4;
+				DEVELOPMENT_TEAM = D7G6N45YVK;
 				INFOPLIST_FILE = /Users/appnapws01/Desktop/Multi_Cam_App/Multi_Cam_App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "io.appnap.Multi-Cam-App";
+				PRODUCT_BUNDLE_IDENTIFIER = "io.appnap.Multi-Cam-App.cam";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -347,14 +343,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = A2NGYFKBN4;
+				DEVELOPMENT_TEAM = D7G6N45YVK;
 				INFOPLIST_FILE = /Users/appnapws01/Desktop/Multi_Cam_App/Multi_Cam_App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "io.appnap.Multi-Cam-App";
+				PRODUCT_BUNDLE_IDENTIFIER = "io.appnap.Multi-Cam-App.cam";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
