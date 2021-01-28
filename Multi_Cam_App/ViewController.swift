@@ -212,7 +212,7 @@ extension ViewController {
                 alertController.addAction(UIAlertAction(title: "Settings", style: .`default`,handler: { _ in
                     if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
                         UIApplication.shared.open(settingsURL,  options: [:], completionHandler: nil)
-                    }
+                    }             
                 }))
                 self.present(alertController, animated: true, completion: nil)
             }
@@ -271,8 +271,19 @@ extension ViewController {
 extension ViewController: CamManagerToMainVC {
     func getImage(image: UIImage) {
         DispatchQueue.main.async {
-            self.backViewLayer3.image = image
+            let scale = image.size.height / image.size.width
+            let wMultiplier: CGFloat = 2.5
+            let hMultiplier = scale * wMultiplier
+            self.backViewLayer3.image = self.imageByCroppingImage(image: image, size: CGSize(width: image.size.width * wMultiplier, height: image.size.width * hMultiplier))
         }
+    }
+    func imageByCroppingImage(image : UIImage, size : CGSize) -> UIImage{
+        let refWidth : CGFloat = CGFloat(image.cgImage!.width)
+        let refHeight : CGFloat = CGFloat(image.cgImage!.height)
+        let cropRect = CGRect(x: (refWidth - size.width) / 2, y: (refHeight - size.height) / 2, width: size.width, height: size.height)
+        let imageRef = image.cgImage!.cropping(to: cropRect)
+        let cropped : UIImage = UIImage(cgImage: imageRef!, scale: 5, orientation: image.imageOrientation)
+        return cropped
     }
 }
 
@@ -348,3 +359,5 @@ extension AVCaptureConnection {
         return transform
     }
 }
+
+
