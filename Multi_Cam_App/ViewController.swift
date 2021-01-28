@@ -251,15 +251,7 @@ extension ViewController {
                     self.present(alertController, animated: true, completion: nil)
                 }
                 return
-            }
-//            guard self.camManager.setUpCamera(type: .builtInUltraWideCamera, position: .back, outputViewlayer: self.backLayer3!) else{
-//                DispatchQueue.main.async {
-//                    let alertController = UIAlertController(title: "Error", message: "4th camera", preferredStyle: .alert)
-//                    alertController.addAction(UIAlertAction(title: "OK",style: .cancel, handler: nil))
-//                    self.present(alertController, animated: true, completion: nil)
-//                }
-//                return
-//            }
+            } 
             guard self.camManager.setUpAudio() else {
                 print("Audio Failed-----------------")
                 return

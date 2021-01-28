@@ -101,18 +101,14 @@ class  CamManager: NSObject {
             print("Could not get back microphone audio settings")
             return nil
         }
-        guard let frontMicrophoneAudioSettings = frontAudioDataOutput.recommendedAudioSettingsForAssetWriter(writingTo: .mov) as? [String: NSObject] else {
-            print("Could not get front microphone audio settings")
-            return nil
-        }
+//        guard let frontMicrophoneAudioSettings = frontAudioDataOutput.recommendedAudioSettingsForAssetWriter(writingTo: .mov) as? [String: NSObject] else {
+//            print("Could not get front microphone audio settings")
+//            return nil
+//        }
         
-        if backMicrophoneAudioSettings == frontMicrophoneAudioSettings {
             // The front and back microphone audio settings are equal, so return either one
-            return backMicrophoneAudioSettings
-        } else {
-            print("Front and back microphone audio settings are not equal. Check your AVCaptureAudioDataOutput configuration.")
-            return nil
-        }
+        return backMicrophoneAudioSettings
+        
     }
     
     func createVideoSettings() -> [String: NSObject]? {
@@ -258,10 +254,10 @@ class  CamManager: NSObject {
         }
         
         // search audio port front
-        guard let frontAudioPort = audioInputPort.ports(for: .audio, sourceDeviceType: audioDevice.deviceType, sourceDevicePosition: .front).first else {
-            print("no front audio port")
-            return false
-        }
+//        guard let frontAudioPort = audioInputPort.ports(for: .audio, sourceDeviceType: audioDevice.deviceType, sourceDevicePosition: .front).first else {
+//            print("no front audio port")
+//            return false
+//        }
         
         // append back output to dual video session
         guard dualVideoSession.canAddOutput(backAudioDataOutput) else {
@@ -272,12 +268,12 @@ class  CamManager: NSObject {
         backAudioDataOutput.setSampleBufferDelegate(self, queue: dualVideoSessionOutputQueue)
         
         // append front ouput to dual video session
-        guard dualVideoSession.canAddOutput(frontAudioDataOutput) else {
-            print("no front audio data output")
-            return false
-        }
-        dualVideoSession.addOutputWithNoConnections(frontAudioDataOutput)
-        frontAudioDataOutput.setSampleBufferDelegate(self, queue: dualVideoSessionOutputQueue)
+//        guard dualVideoSession.canAddOutput(frontAudioDataOutput) else {
+//            print("no front audio data output")
+//            return false
+//        }
+        //dualVideoSession.addOutputWithNoConnections(frontAudioDataOutput)
+        //frontAudioDataOutput.setSampleBufferDelegate(self, queue: dualVideoSessionOutputQueue)
         
         // add back output to dual video session
         let backOutputConnection = AVCaptureConnection(inputPorts: [backAudioPort], output: backAudioDataOutput)
@@ -288,12 +284,12 @@ class  CamManager: NSObject {
         dualVideoSession.addConnection(backOutputConnection)
         
         // add front output to dual video session
-        let frontutputConnection = AVCaptureConnection(inputPorts: [frontAudioPort], output: frontAudioDataOutput)
-        guard dualVideoSession.canAddConnection(frontutputConnection) else {
-            print("no front audio connection")
-            return false
-        }
-        dualVideoSession.addConnection(frontutputConnection)
+//        let frontutputConnection = AVCaptureConnection(inputPorts: [frontAudioPort], output: frontAudioDataOutput)
+//        guard dualVideoSession.canAddConnection(frontutputConnection) else {
+//            print("no front audio connection")
+//            return false
+//        }
+//        dualVideoSession.addConnection(frontutputConnection)
         
         return true
     }
@@ -354,44 +350,41 @@ extension CamManager: AVCaptureVideoDataOutputSampleBufferDelegate,AVCaptureAudi
 
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection){
         
-        let chk = "\(connection)"
-        if chk.contains("Back Camera") {
+        let inputSourceInfo = "\(connection)"
+        if inputSourceInfo.contains("Back Camera") {
             let imageBuffer: CVPixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
             let ciimage : CIImage = CIImage(cvPixelBuffer: imageBuffer)
             let image : UIImage = self.convert(cmage: ciimage)
             delegate?.getImage(image: image)
 
         }
-        
         if movieRecorder?.isRecording == true {
-            let inputSourceInfo = "\(connection)"
-            
-            if inputSourceInfo.contains("Back Camera") {
-                
-                if output is AVCaptureVideoDataOutput {
-                    if let recorder = movieRecorder {
-                        recorder.recordVideo(sampleBuffer: sampleBuffer)
+            if output is AVCaptureAudioDataOutput {
+                if let recorder = movieRecorder,
+                    recorder.isRecording {
+                    recorder.recordAudio(sampleBuffer: sampleBuffer)
+                }
+                if let recorder = movieRecorder2,
+                    recorder.isRecording {
+                    recorder.recordAudio(sampleBuffer: sampleBuffer)
+                }
+            }else if output is AVCaptureVideoDataOutput {
+                if inputSourceInfo.contains("Back Camera") {
+                    
+                    if output is AVCaptureVideoDataOutput {
+                        if let recorder = movieRecorder {
+                            recorder.recordVideo(sampleBuffer: sampleBuffer)
+                        }
                     }
-                } else if output is AVCaptureAudioDataOutput {
-                    if let recorder = movieRecorder,
-                        recorder.isRecording {
-                        recorder.recordAudio(sampleBuffer: sampleBuffer)
+                }
+                else if inputSourceInfo.contains("Front Camera") {
+                    if output is AVCaptureVideoDataOutput {
+                        if let recorder = movieRecorder2 {
+                            recorder.recordVideo(sampleBuffer: sampleBuffer)
+                        }
                     }
                 }
             }
-            if inputSourceInfo.contains("Front Camera") {
-                if output is AVCaptureVideoDataOutput {
-                    if let recorder = movieRecorder2 {
-                        recorder.recordVideo(sampleBuffer: sampleBuffer)
-                    }
-                } else if output is AVCaptureAudioDataOutput {
-                    if let recorder = movieRecorder2,
-                        recorder.isRecording {
-                        recorder.recordAudio(sampleBuffer: sampleBuffer)
-                    }
-                }
-            }
-            
         }
     }
     func convert(cmage:CIImage) -> UIImage
