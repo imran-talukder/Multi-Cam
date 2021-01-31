@@ -14,7 +14,7 @@ class ViewController: UIViewController {
     //MARK: -  Properties
     
     let camManager = CamManager()
-    
+    let videoEditor = VideoEditor()
     let frontViewLayer: ViewForCamera = {
         let view = ViewForCamera()
         view.backgroundColor = .clear
@@ -50,6 +50,13 @@ class ViewController: UIViewController {
         addCameraViews()
         addActionButtons()
         setup()
+        view.backgroundColor = .red
+        
+        //FIXME:- Mask
+        
+        
+        
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -91,7 +98,7 @@ class ViewController: UIViewController {
             backViewLayer2.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 10).isActive = true
             backViewLayer2.topAnchor.constraint(equalTo: frontViewLayer.bottomAnchor, constant: 10).isActive = true
             backViewLayer2.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.4).isActive = true
-            backViewLayer2.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.45).isActive = true
+            backViewLayer2.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.95).isActive = true
         }
         
         if !view.subviews.contains(backViewLayer3) {
@@ -157,11 +164,14 @@ class ViewController: UIViewController {
         }else {
             camManager.movieRecorder?.isRecording = false
             camManager.movieRecorder?.stopRecording { movieURL in
-                self.camManager.saveMovieToPhotoLibrary(movieURL)
+                
+                self.videoEditor.finalOutput(fromVideoAt: movieURL, onComplete: {url in
+                    self.camManager.saveMovieToPhotoLibrary(url!)
+                })
             }
             camManager.movieRecorder2?.isRecording = false
             camManager.movieRecorder2?.stopRecording { movieURL in
-                self.camManager.saveMovieToPhotoLibrary(movieURL)
+                //self.camManager.saveMovieToPhotoLibrary(movieURL)
             }
             let alertController = UIAlertController(title: "Saved!", message: "Video saved to your gallery.", preferredStyle: .alert)
             alertController.addAction(UIAlertAction(title: "Done",style: .cancel, handler: nil))
@@ -267,6 +277,13 @@ extension ViewController: CamManagerToMainVC {
             let wMultiplier: CGFloat = 2.5
             let hMultiplier = scale * wMultiplier
             self.backViewLayer3.image = self.imageByCroppingImage(image: image, size: CGSize(width: image.size.width * wMultiplier, height: image.size.width * hMultiplier))
+            
+            let maskImgView = UIImageView()
+            maskImgView.image = UIImage(named: "mask2")
+            maskImgView.frame = self.backViewLayer3.bounds
+            maskImgView.contentMode = .scaleAspectFit
+            
+            self.backViewLayer3.mask = maskImgView
         }
     }
     func imageByCroppingImage(image : UIImage, size : CGSize) -> UIImage{

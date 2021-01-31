@@ -16,6 +16,7 @@
 		297E8AFE25B826EF005D4134 /* ViewForCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 297E8AFD25B826EF005D4134 /* ViewForCamera.swift */; };
 		297E8B0525B844A5005D4134 /* CamManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 297E8B0425B844A5005D4134 /* CamManager.swift */; };
 		29DA2F5825C1233900908D47 /* MovieRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29DA2F5725C1233900908D47 /* MovieRecorder.swift */; };
+		29DE663225C2B93B00EBFCE4 /* VideoEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29DE663125C2B93B00EBFCE4 /* VideoEditor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		297E8AFD25B826EF005D4134 /* ViewForCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewForCamera.swift; sourceTree = "<group>"; };
 		297E8B0425B844A5005D4134 /* CamManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CamManager.swift; sourceTree = "<group>"; };
 		29DA2F5725C1233900908D47 /* MovieRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieRecorder.swift; sourceTree = "<group>"; };
+		29DE663125C2B93B00EBFCE4 /* VideoEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +83,7 @@
 				297E8AEC25B824CE005D4134 /* ViewController.swift */,
 				297E8B0425B844A5005D4134 /* CamManager.swift */,
 				29DA2F5725C1233900908D47 /* MovieRecorder.swift */,
+				29DE663125C2B93B00EBFCE4 /* VideoEditor.swift */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -174,6 +177,7 @@
 				297E8B0525B844A5005D4134 /* CamManager.swift in Sources */,
 				29DA2F5825C1233900908D47 /* MovieRecorder.swift in Sources */,
 				297E8AFE25B826EF005D4134 /* ViewForCamera.swift in Sources */,
+				29DE663225C2B93B00EBFCE4 /* VideoEditor.swift in Sources */,
 				297E8AE925B824CE005D4134 /* AppDelegate.swift in Sources */,
 				297E8AEB25B824CE005D4134 /* SceneDelegate.swift in Sources */,
 			);
