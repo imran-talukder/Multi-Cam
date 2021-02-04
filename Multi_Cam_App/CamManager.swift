@@ -366,7 +366,7 @@ extension CamManager: AVCaptureVideoDataOutputSampleBufferDelegate,AVCaptureAudi
                 }
                 if let recorder = movieRecorder2,
                     recorder.isRecording {
-                    recorder.recordAudio(sampleBuffer: sampleBuffer)
+                    //recorder.recordAudio(sampleBuffer: sampleBuffer)
                 }
             }else if output is AVCaptureVideoDataOutput {
                 if inputSourceInfo.contains("Back Camera") {

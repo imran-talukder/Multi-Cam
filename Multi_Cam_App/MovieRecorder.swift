@@ -46,9 +46,9 @@ class MovieRecorder {
         // Add a video input
         let assetWriterVideoInput = AVAssetWriterInput(mediaType: .video, outputSettings: videoSettings)
         assetWriterVideoInput.expectsMediaDataInRealTime = true
-        assetWriterVideoInput.transform = videoTransform
+        //assetWriterVideoInput.transform = videoTransform
+        assetWriterVideoInput.transform = CGAffineTransform(scaleX: 1.0, y: 1.15)
         assetWriter.add(assetWriterVideoInput)
-        
         self.assetWriter = assetWriter
         self.assetWriterAudioInput = assetWriterAudioInput
         self.assetWriterVideoInput = assetWriterVideoInput

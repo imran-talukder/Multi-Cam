@@ -7,12 +7,13 @@
 
 import UIKit
 import AVFoundation
-
+import ReplayKit
 class ViewController: UIViewController {
 
     
     //MARK: -  Properties
-    
+    var recorder = RPScreenRecorder.shared()
+    var movieRecorder: MovieRecorder?
     let camManager = CamManager()
     let videoEditor = VideoEditor()
     let frontViewLayer: ViewForCamera = {
@@ -50,7 +51,7 @@ class ViewController: UIViewController {
         addCameraViews()
         addActionButtons()
         setup()
-        view.backgroundColor = .red
+        //view.backgroundColor = .red
         
         //FIXME:- Mask
         
@@ -157,17 +158,50 @@ class ViewController: UIViewController {
             camManager.movieRecorder2 = MovieRecorder(audioSettings: audioSettings,
                                                videoSettings: videoSettings,
                                                videoTransform: videoTransform)
+            movieRecorder = MovieRecorder(audioSettings: audioSettings,
+                                          videoSettings: videoSettings,
+                                          videoTransform: videoTransform)
+            
+            movieRecorder?.startRecording()
+            //recorder.isMicrophoneEnabled = true
+            recorder.startCapture { (sampleBuffer, type, error) in
+                if type == .video {
+                    self.movieRecorder?.recordVideo(sampleBuffer: sampleBuffer)
+                }
+                if type == .audioApp {
+                    self.movieRecorder?.recordAudio(sampleBuffer: sampleBuffer)
+                }
+            } completionHandler: { (error) in
+                print("Recording started")
+            }
+
             
             
             camManager.movieRecorder2?.startRecording()
             sender.setTitle("End Recording", for: .normal)
         }else {
+            
+            recorder.stopCapture { (error) in
+                if error != nil {
+                    print("Error occured while stoping capturing")
+                    return
+                }
+            }
+            
+            
+            recorder = RPScreenRecorder.shared()
+            
+            
+            
             camManager.movieRecorder?.isRecording = false
+            self.movieRecorder?.isRecording = false
             camManager.movieRecorder?.stopRecording { movieURL in
-                
-                self.videoEditor.finalOutput(fromVideoAt: movieURL, onComplete: {url in
-                    self.camManager.saveMovieToPhotoLibrary(url!)
+                self.movieRecorder?.stopRecording(completion: { (url) in
+                    self.videoEditor.finalOutput(fromVideoAt: url, audioURL: movieURL, onComplete: {url in
+                        self.camManager.saveMovieToPhotoLibrary(url!)
+                    })
                 })
+                
             }
             camManager.movieRecorder2?.isRecording = false
             camManager.movieRecorder2?.stopRecording { movieURL in

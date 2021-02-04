@@ -10,8 +10,10 @@ import UIKit
 import Photos
 
 class VideoEditor {
-    func finalOutput(fromVideoAt videoURL: URL, onComplete: @escaping (URL?) -> Void) {
+    func finalOutput(fromVideoAt videoURL: URL, audioURL: URL, onComplete: @escaping (URL?) -> Void) {
+        
         let asset = AVURLAsset(url: videoURL)
+        let audioAsset = AVURLAsset(url: audioURL)
         let composition = AVMutableComposition()
         
         guard
@@ -25,17 +27,17 @@ class VideoEditor {
         }
         
         do {
-            let timeRange = CMTimeRange(start: CMTimeMake(value: 1, timescale: Int32(7.13)), duration: asset.duration)
+              let timeRange = CMTimeRange(start: CMTimeMake(value: 1, timescale: Int32(7.13)), duration: asset.duration)
               try compositionTrack.insertTimeRange(timeRange, of: assetTrack, at: .zero)
               
-              if let audioAssetTrack = asset.tracks(withMediaType: .audio).first,
+              if let audioAssetTrack = audioAsset.tracks(withMediaType: .audio).first,
                     let compositionAudioTrack = composition.addMutableTrack(
                       withMediaType: .audio,
                       preferredTrackID: kCMPersistentTrackID_Invalid) {
                     try compositionAudioTrack.insertTimeRange(
                       timeRange,
                       of: audioAssetTrack,
-                      at: .zero)
+                        at: CMTimeMake(value: 1, timescale: Int32(0.65)))
               }
         } catch {
               print(error)
@@ -59,7 +61,7 @@ class VideoEditor {
         backgroundLayer.backgroundColor = UIColor.green.cgColor
         
         let videoLayer = CALayer()
-        videoLayer.frame = CGRect(x: 40, y: 40, width: videoSize.width-80, height: videoSize.height-80)
+        videoLayer.frame = CGRect(x: 0, y: 0, width: videoSize.width, height: videoSize.height)
         
         let videoLayer2 = CALayer()
         videoLayer2.frame = CGRect(origin: .zero, size: videoSize)
@@ -151,12 +153,85 @@ class VideoEditor {
     }
     
     private func compositionLayerInstruction(for track: AVCompositionTrack, assetTrack: AVAssetTrack) -> AVMutableVideoCompositionLayerInstruction {
-          let instruction = AVMutableVideoCompositionLayerInstruction(assetTrack: track)
-          let transform = assetTrack.preferredTransform
-          
-          instruction.setTransform(transform, at: .zero)
-          
-          return instruction
+//          let instruction = AVMutableVideoCompositionLayerInstruction(assetTrack: track)
+//          let transform = assetTrack.preferredTransform
+//
+//          instruction.setTransform(transform, at: .zero)
+//
+//          return instruction
+        
+        
+        let instruction = AVMutableVideoCompositionLayerInstruction(assetTrack: track)
+        let orientationAspectTransform: CGAffineTransform
+        let sourceVideoIsRotated: Bool = assetTrack.preferredTransform.a == 0
+        if sourceVideoIsRotated {
+          orientationAspectTransform = CGAffineTransform(scaleX: assetTrack.naturalSize.width/assetTrack.naturalSize.height,
+                                                         y: assetTrack.naturalSize.height/assetTrack.naturalSize.width)
+        } else {
+          orientationAspectTransform = .identity
+        }
+
+        let bugFixTransform = CGAffineTransform(scaleX: 1080/assetTrack.naturalSize.width,
+                                                y: 1920/assetTrack.naturalSize.height)
+        
+                
+        let transform = assetTrack.preferredTransform.concatenating(bugFixTransform).concatenating(orientationAspectTransform)
+        instruction.setTransform(transform, at: .zero)
+        return instruction
+      
+        
+    }
+    
+    func scaleAndPositionInAspectFillMode(forTrack track:AVAssetTrack, inArea area: CGSize) -> (scale: CGSize, position: CGPoint) {
+        let assetSize = self.assetSize(forTrack: track)
+        let aspectFillSize  = CGSize.aspectFill(videoSize: assetSize, boundingSize: area)
+        let aspectFillScale = CGSize(width: aspectFillSize.width/assetSize.width, height: aspectFillSize.height/assetSize.height)
+        let position = CGPoint(x: (area.width - aspectFillSize.width)/2.0, y: (area.height - aspectFillSize.height)/2.0)
+        return (scale: aspectFillScale, position: position)
+    }
+    
+    func assetSize(forTrack videoTrack:AVAssetTrack) -> CGSize {
+        let size = videoTrack.naturalSize.applying(videoTrack.preferredTransform)
+        return CGSize(width: abs(size.width), height: abs(size.height))
+    }
+    
+    
+    
+}
+
+
+extension CGSize {
+    
+    static func aspectFit(videoSize: CGSize, boundingSize: CGSize) -> CGSize {
+        
+        var size = boundingSize
+        let mW = boundingSize.width / videoSize.width;
+        let mH = boundingSize.height / videoSize.height;
+        
+        if( mH < mW ) {
+            size.width = boundingSize.height / videoSize.height * videoSize.width;
+        }
+        else if( mW < mH ) {
+            size.height = boundingSize.width / videoSize.width * videoSize.height;
+        }
+        
+        return size;
+    }
+    
+    static func aspectFill(videoSize: CGSize, boundingSize: CGSize) -> CGSize {
+        
+        var size = boundingSize
+        let mW = boundingSize.width / videoSize.width;
+        let mH = boundingSize.height / videoSize.height;
+        
+        if( mH > mW ) {
+            size.width = boundingSize.height / videoSize.height * videoSize.width;
+        }
+        else if ( mW > mH ) {
+            size.height = boundingSize.width / videoSize.width * videoSize.height;
+        }
+        
+        return size;
     }
 }
 
