@@ -37,7 +37,7 @@ class VideoEditor {
                     try compositionAudioTrack.insertTimeRange(
                       timeRange,
                       of: audioAssetTrack,
-                        at: CMTimeMake(value: 1, timescale: Int32(0.65)))
+                        at: CMTimeMake(value: 1, timescale: Int32(7.13)))
               }
         } catch {
               print(error)

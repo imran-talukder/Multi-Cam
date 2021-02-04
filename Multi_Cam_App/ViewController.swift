@@ -68,6 +68,16 @@ class ViewController: UIViewController {
           self.present(alertController, animated: true, completion: nil)
           return
         #endif
+        
+        recorder.startCapture { (sample, type, error) in
+            print(("Data arrived"))
+        } completionHandler: { (_: Error?) in
+            self.recorder.stopCapture { (error) in
+                self.recorder = RPScreenRecorder.shared()
+            }
+        }
+
+        
     }
     
     let startEndtButton: UIButton = UIButton()
